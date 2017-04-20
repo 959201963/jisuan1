@@ -7,11 +7,11 @@ import java.util.Stack;
 /**
  * Created by acer-pc on 2017/3/24.
  */
-public class shuntingYardAlgorithm {
+public class Recurrence {
     ArrayList<String> a=new ArrayList<String>();
 
 
-    shuntingYardAlgorithm(ArrayList<String> a) {
+    Recurrence(ArrayList<String> a) {
         this.a=a;
     }
     public String answer(ArrayList<String> a) {
@@ -20,11 +20,25 @@ public class shuntingYardAlgorithm {
 
         Stack<String> number=new Stack<String>();
         Stack<String> mark=new Stack<String>();
+        String zz;
         int j=0;
 
         for(int i=0;i<a.size();i++) {
             if (a.get(i).charAt(0)>='0'&&a.get(i).charAt(0)<='9'||(a.get(i).charAt(0)=='-'&&a.get(i).length()>1)) {
                 number.push(a.get(i));
+                if(!mark.empty()) {
+
+
+                    if (mark.peek().equals("×")) {
+                        number.push(calculate(number.pop(), number.pop(), '×'));
+                        mark.pop();
+                    } else if (mark.peek().equals("÷")) {
+                        if(number.peek().equals("0"))
+                            return "FALSE";
+                        number.push(calculate(number.pop(), number.pop(), '÷'));
+                        mark.pop();
+                    }
+                }
 
             }
             else {
@@ -42,12 +56,17 @@ public class shuntingYardAlgorithm {
                         mark.pop();
                     }
                     else if(mark.peek().equals("÷")&&(a.get(i).compareTo("(")!=0)) {
+                        if(number.peek().equals("0"))
+                            return "FALSE";
                         number.push(calculate(number.pop(), number.pop(), '÷'));
                         mark.pop();
                     }
 
                 }
                 mark.push(a.get(i));
+
+
+
                 if(a.get(i).charAt(0)==')') {
                     mark.pop();
                     while(mark.peek().compareTo("(")!=0) {
@@ -61,8 +80,10 @@ public class shuntingYardAlgorithm {
                         fb.add(b.get(--j));
                     }
                     number.push(answer(fb));
+
                     b.clear();
                     fb.clear();
+                    //zz=mark.pop();
                     if(!mark.empty()) {
 
 
@@ -70,6 +91,8 @@ public class shuntingYardAlgorithm {
                             number.push(calculate(number.pop(), number.pop(), '×'));
                             mark.pop();
                         } else if (mark.peek().equals("÷")) {
+                            if(number.peek().equals("0"))
+                                return "FALSE";
                             number.push(calculate(number.pop(), number.pop(), '÷'));
                             mark.pop();
                         }
@@ -90,11 +113,16 @@ public class shuntingYardAlgorithm {
                 number.push(calculate(number.pop(), number.pop(), '×'));
                 mark.pop();
             } else if (mark.peek().equals("÷")) {
+                if(number.peek().equals("0"))
+                    return "FALSE";
                 number.push(calculate(number.pop(), number.pop(), '÷'));
                 mark.pop();
             }
         }
-
+        String []n1=number.peek().split("/");
+        if(n1.length>1)
+            if(n1[1].compareTo("1")==0)
+                return n1[0];
         return number.pop();
     }
     String calculate(String b1,String a1,char operator){
@@ -103,6 +131,7 @@ public class shuntingYardAlgorithm {
             a1=a1+"/1";
         if(b1.indexOf("/")<0)
             b1=b1+"/1";
+
         String []stra=a1.split("/");
         String []strb=b1.split("/");
         x1=Integer.parseInt(stra[0]);
@@ -128,6 +157,12 @@ public class shuntingYardAlgorithm {
         if(operator=='÷'){
             z=GCM(x1*y2,y1*x2);
             //乘上一个负的分数时要考虑
+            if(x2<0) {
+                x1 = x1*-1;
+                x2 = x2*-1;
+            }
+            /*if((y1*x2)/z==1)
+                return (x1*y2)/z+"";*/
             return (x1*y2)/z+"/"+(y1*x2)/z;
         }
 
@@ -146,27 +181,6 @@ public class shuntingYardAlgorithm {
         }
         return m;
     }
-    /*public static void main(String[] args) {
-        Scanner s=new Scanner(System.in);
 
-
-        ArrayList<String> a1=new ArrayList<String>();
-        String x;
-        int i=0;
-        String  result;
-        //输入表达式
-        while((x=s.next()).compareTo("=")!=0 )
-        {
-            a1.add(x);
-        }
-
-        shuntingYardAlgorithm z=new shuntingYardAlgorithm(a1);
-        //调用函数计算
-        result=z.answer(a1);
-
-
-        System.out.println(result);
-
-    }*/
 
 }
